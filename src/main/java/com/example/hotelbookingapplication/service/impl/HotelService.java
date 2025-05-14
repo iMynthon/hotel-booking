@@ -7,6 +7,7 @@ import com.example.hotelbookingapplication.repository.HotelRepository;
 import com.example.hotelbookingapplication.service.HotelBookingService;
 import com.example.hotelbookingapplication.validation.PaginationFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ public class HotelService implements HotelBookingService<Hotel> {
 
     private final HotelRepository hotelRepository;
 
+    @Setter(onMethod_ = @Autowired)
     private HotelMapper hotelMapper;
 
     public List<Hotel> findAll(PaginationFilter filter) {
@@ -63,10 +65,5 @@ public class HotelService implements HotelBookingService<Hotel> {
     public Hotel findByName(String name){
         return hotelRepository.findByName(name).orElseThrow(()->
                 new EntityNotFoundException(String.format("Hotel с name:{%s} - не найден",name)));
-    }
-
-    @Autowired
-    public void setHotelMapper(HotelMapper hotelMapper) {
-        this.hotelMapper = hotelMapper;
     }
 }

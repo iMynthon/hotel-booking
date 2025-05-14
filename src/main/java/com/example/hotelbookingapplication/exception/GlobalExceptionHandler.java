@@ -28,9 +28,21 @@ public class GlobalExceptionHandler {
                 .orElse("Ошибка валидации"));
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Exception.class)
-    public ErrorResponse catchUnprocessedException(Exception e){
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(DuplicateDataException.class)
+    public ErrorResponse catchDuplicateDataException(DuplicateDataException dde){
+        return new ErrorResponse(dde.getMessage());
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(AuthorityUserException.class)
+    public ErrorResponse catchAuthorityUserException(AuthorityUserException aue){
+        return new ErrorResponse(aue.getMessage());
+    }
+
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(Exception.class)
+//    public ErrorResponse catchUnprocessedException(Exception e){
+//        return new ErrorResponse(e.getMessage());
+//    }
 }

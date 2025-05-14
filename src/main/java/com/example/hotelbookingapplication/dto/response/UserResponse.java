@@ -8,20 +8,16 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class RoomResponse {
+public class UserResponse {
 
     private Integer id;
 
-    private String name;
+    private String username;
 
-    private String description;
+    private String email;
 
-    private Integer number;
-
-    private Integer numberOfPeople;
-
-    private String hotel;
+    private String password;
 
     @Builder.Default
-    private List<String> unavailableDate = new ArrayList<>();
+    private List<AuthorityResponse> roles = new ArrayList<>();
 }

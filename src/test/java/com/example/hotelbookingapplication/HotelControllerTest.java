@@ -37,7 +37,8 @@ public class HotelControllerTest extends AbstractTest{
         mockMvc.perform(get("/api/hotel/{id}",expectedHotel.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(expectedHotel.getName()))
-                .andExpect(jsonPath("$.id").value(expectedHotel.getId()));
+                .andExpect(jsonPath("$.id").value(expectedHotel.getId()))
+                .andExpect(jsonPath("$.rooms.length()").value(2));
     }
 
     @Test

@@ -9,7 +9,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(23)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -27,6 +27,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.mapstruct:mapstruct:1.5.4.Final")
 	runtimeOnly("org.postgresql:postgresql:42.7.2")
 	compileOnly("org.projectlombok:lombok")
@@ -36,6 +37,7 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.testcontainers:junit-jupiter:1.17.6")
 	testImplementation("org.testcontainers:postgresql:1.17.6")
+	testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<Test> {

@@ -22,14 +22,15 @@ public class Hotel {
     private String city;
 
     private String address;
-
+    @Column(name = "distance_from_center_city")
     private Double distanceFromCenterCity;
 
     private Float rating;
-
+    @Column(name = "number_of_rating")
     private Integer numberOfRating;
 
     @Builder.Default
     @OneToMany(mappedBy = "hotel",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Room> rooms = new ArrayList<>();
+
 }

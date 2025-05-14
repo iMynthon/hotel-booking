@@ -1,9 +1,7 @@
 package com.example.hotelbookingapplication;
 
-import com.example.hotelbookingapplication.model.Hotel;
-import com.example.hotelbookingapplication.model.Room;
-import com.example.hotelbookingapplication.repository.HotelRepository;
-import com.example.hotelbookingapplication.repository.RoomRepository;
+import com.example.hotelbookingapplication.model.*;
+import com.example.hotelbookingapplication.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest
@@ -31,6 +30,15 @@ public class AbstractTest {
 
     @Autowired
     protected RoomRepository roomRepository;
+
+    @Autowired
+    protected UserRepository userRepository;
+
+    @Autowired
+    protected AuthorityRepository authorityRepository;
+
+    @Autowired
+    protected BookingRepository bookingRepository;
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -50,35 +58,29 @@ public class AbstractTest {
     void setUp(){
         hotelRepository.deleteAll();
         roomRepository.deleteAll();
+        userRepository.deleteAll();
+        authorityRepository.deleteAll();
 
         Room standardRoom = Room.builder()
                 .name("Standard Room")
                 .description("Уютный номер с видом во двор")
-                .number(101)
+                .number(109)
                 .numberOfPeople(2)
-                .unavailableRoomInDate(List.of(
-                        LocalDateTime.of(2025, 6, 15, 0, 0),
-                        LocalDateTime.of(2025, 6, 20, 0, 0)
-                )).build();
+                .build();
 
         Room luxuryRoom = Room.builder()
                 .name("Luxury Room")
                 .number(103)
                 .description("Номер с видом на море и мини-баром")
-                .unavailableRoomInDate(List.of(
-                        LocalDateTime.of(2025, 6, 10, 0, 0),
-                        LocalDateTime.of(2025, 6, 11, 0, 0),
-                        LocalDateTime.of(2025, 6, 12, 0, 0)
-                )).build();
+                .build();
 
         Room availableRoom = Room.builder()
                 .name("Available Room")
                 .number(104)
-                .unavailableRoomInDate(List.of())  // Пустой список
                 .build();
 
         Room defaultRoom = Room.builder()
-                .name("Standard Room")
+                .name("Default Room")
                 .number(101)
                 .build();
 
@@ -90,7 +92,7 @@ public class AbstractTest {
                 .distanceFromCenterCity(0.5)
                 .rating((float) 4)
                 .numberOfRating(120)
-                .rooms(List.of(standardRoom,luxuryRoom))
+                .rooms(new ArrayList<>(List.of(standardRoom,luxuryRoom)))
                 .build();
 
         Hotel testHotel2 = Hotel.builder()
@@ -101,9 +103,74 @@ public class AbstractTest {
                 .distanceFromCenterCity(1.0)
                 .rating((float) 3)
                 .numberOfRating(250)
-                .rooms(List.of(defaultRoom,availableRoom))
+                .rooms(new ArrayList<>(List.of(defaultRoom,availableRoom)))
+                .build();
+        standardRoom.setHotel(testHotel);
+        luxuryRoom.setHotel(testHotel);
+        defaultRoom.setHotel(testHotel2);
+        availableRoom.setHotel(testHotel2);
+
+        hotelRepository.saveAll(new ArrayList<>(List.of(testHotel,testHotel2)));
+
+        User user = User.builder()
+                .username("Пользователь системы")
+                .email("user@mail.ru")
+                .password("12345")
                 .build();
 
-        hotelRepository.saveAll(List.of(testHotel,testHotel2));
+        User admin = User.builder()
+                .username("Администратор системы")
+                .email("admin@mail.ru")
+                .password("1290")
+                .build();
+
+        Authority userAuth = Authority.builder()
+                .role(RoleType.ROLE_USER)
+                .user(user)
+                .build();
+
+        Authority adminAuth = Authority.builder()
+                .role(RoleType.ROLE_ADMIN)
+                .user(admin)
+                .build();
+
+        user.getRoles().add(userAuth);
+        admin.getRoles().add(adminAuth);
+
+
+        Booking booking = Booking.builder()
+                .arrivalDate(LocalDate.of(2025,1,10))
+                .departureDate(LocalDate.of(2025,1,20))
+                .room(standardRoom)
+                .user(user)
+                .build();
+
+        Booking booking1 = Booking.builder()
+                .arrivalDate(LocalDate.of(2025,3,2))
+                .departureDate(LocalDate.of(2025,3,25))
+                .room(luxuryRoom)
+                .user(admin)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .arrivalDate(LocalDate.of(2025,5,14))
+                .departureDate(LocalDate.of(2025,5,29))
+                .room(availableRoom)
+                .user(user)
+                .build();
+
+        user.getBookings().add(booking);
+        standardRoom.getBookings().add(booking);
+        admin.getBookings().add(booking1);
+        luxuryRoom.getBookings().add(booking1);
+        user.getBookings().add(booking2);
+        availableRoom.getBookings().add(booking2);
+        userRepository.saveAll(new ArrayList<>(List.of(user,admin)));
+    }
+
+    protected List<LocalDate> createDate(LocalDate... dates) {
+        List<LocalDate> result = new ArrayList<>();
+        Collections.addAll(result, dates);
+        return result;
     }
 }
