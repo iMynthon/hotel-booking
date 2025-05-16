@@ -1,11 +1,13 @@
 package com.example.hotelbookingapplication.controller;
 
+import com.example.hotelbookingapplication.dto.request.HotelEstimateRequest;
 import com.example.hotelbookingapplication.dto.request.UpsertHotelRequest;
 import com.example.hotelbookingapplication.dto.response.AllHotelResponse;
+import com.example.hotelbookingapplication.dto.response.HotelRatingResponse;
 import com.example.hotelbookingapplication.dto.response.HotelResponse;
 import com.example.hotelbookingapplication.mapper.HotelMapper;
 import com.example.hotelbookingapplication.service.impl.HotelService;
-import com.example.hotelbookingapplication.validation.PaginationFilter;
+import com.example.hotelbookingapplication.validation.filter.HotelValidatorFilter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,7 @@ public class HotelController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
-    public AllHotelResponse findAll(@Valid PaginationFilter filter){
+    public AllHotelResponse findAll(@Valid HotelValidatorFilter filter){
        return hotelMapper.listHotelToListHotelResponse(hotelService.findAll(filter));
     }
 
@@ -35,6 +37,13 @@ public class HotelController {
     @GetMapping("/{id}")
     public HotelResponse findById(@PathVariable Integer id){
         return hotelMapper.hotelToResponse(hotelService.findById(id));
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PostMapping("/estimate")
+    public HotelRatingResponse estimate(@RequestBody @Valid HotelEstimateRequest request){
+        return hotelService.changesRatingToHotel(request);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

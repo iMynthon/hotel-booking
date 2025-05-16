@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel,Integer>, JpaSpecificationExecutor<Hotel> {
 
-    Optional<Hotel> findByName(String name);
+    Optional<Hotel> findByNameIgnoreCase(String name);
 }

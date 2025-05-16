@@ -1,15 +1,11 @@
 package com.example.hotelbookingapplication;
 import com.example.hotelbookingapplication.dto.request.UpsertBookingRequest;
-import com.example.hotelbookingapplication.dto.request.UpsertUserRequest;
 import com.example.hotelbookingapplication.model.Booking;
 import com.example.hotelbookingapplication.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -20,15 +16,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@AutoConfigureMockMvc
 public class BookingControllerTest extends AbstractTest{
 
-    @Autowired
-    private MockMvc mockMvc;
+
+    @Test
+    @DisplayName("Тестовое получение всех броней админом")
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetFindAll() throws Exception {
+
+        mockMvc.perform(get("/api/booking"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bookingList.length()").value(3));
+    }
+
+    @Test
+    @DisplayName("Тестовое получение всех броней другой ролью")
+    @WithMockUser(username = "user", roles = "USER")
+    public void testGetFindAllAnyRoles() throws Exception {
+
+        mockMvc.perform(get("/api/booking"))
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     @DisplayName("Тестовое получение всех броней")
-    @WithMockUser(username = "user",roles = "USER")
+    @WithMockUser(username = "admin",roles = "ADMIN")
     public void testGetByIdBooking() throws Exception{
 
         mockMvc.perform(get("/api/booking"))
@@ -69,5 +81,39 @@ public class BookingControllerTest extends AbstractTest{
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Тестовое удаление брони")
+    @WithMockUser(username = "admin",roles = "ADMIN")
+    public void testDeleteById() throws Exception{
+        User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
+        List<Booking> bookingList = bookingRepository.findByUserId(user.getId()).orElseThrow();
+
+        Booking booking = bookingList.get(0);
+
+        assertEquals(3,bookingRepository.count());
+
+        mockMvc.perform(delete("/api/booking/{id}",booking.getId()))
+                .andExpect(status().isNoContent());
+
+        assertEquals(2,bookingRepository.count());
+    }
+
+    @Test
+    @DisplayName("Тестовое удаление брони другой ролью")
+    @WithMockUser(username = "user",roles = "USER")
+    public void testDeleteByIdAnyRole() throws Exception{
+        User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
+        List<Booking> bookingList = bookingRepository.findByUserId(user.getId()).orElseThrow();
+
+        Booking booking = bookingList.get(0);
+
+        assertEquals(3,bookingRepository.count());
+
+        mockMvc.perform(delete("/api/booking/{id}",booking.getId()))
+                .andExpect(status().isForbidden());
+
+        assertEquals(3,bookingRepository.count());
     }
 }

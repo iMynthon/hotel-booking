@@ -5,14 +5,17 @@ import com.example.hotelbookingapplication.dto.response.UserResponse;
 import com.example.hotelbookingapplication.mapper.UserMapper;
 import com.example.hotelbookingapplication.model.RoleType;
 import com.example.hotelbookingapplication.service.impl.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -35,7 +38,7 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public UserResponse save(@RequestParam RoleType role, @RequestBody UpsertUserRequest request){
+    public UserResponse save(@RequestParam @Valid RoleType role, @RequestBody @Valid UpsertUserRequest request){
         return userMapper.userToResponse(userService.save(role,userMapper.requestToUser(request)));
     }
 
@@ -44,7 +47,7 @@ public class UserController {
     @PutMapping("/{id}")
     public UserResponse update(@PathVariable Integer id,
                                @RequestParam(required = false) RoleType role,
-                               @RequestBody UpsertUserRequest request){
+                               @RequestBody @Valid UpsertUserRequest request){
         return userMapper.userToResponse(userService.update(role,userMapper.requestToUser(id,request)));
     }
 

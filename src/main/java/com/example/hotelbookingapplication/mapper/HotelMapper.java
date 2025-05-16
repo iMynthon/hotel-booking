@@ -2,6 +2,7 @@ package com.example.hotelbookingapplication.mapper;
 
 import com.example.hotelbookingapplication.dto.request.UpsertHotelRequest;
 import com.example.hotelbookingapplication.dto.response.AllHotelResponse;
+import com.example.hotelbookingapplication.dto.response.HotelRatingResponse;
 import com.example.hotelbookingapplication.dto.response.HotelResponse;
 import com.example.hotelbookingapplication.model.Hotel;
 import org.mapstruct.Mapper;
@@ -18,6 +19,8 @@ public interface HotelMapper {
     Hotel requestToHotel(Integer id,UpsertHotelRequest request);
 
     HotelResponse hotelToResponse(Hotel hotel);
+
+    HotelRatingResponse hotelToRatingResponse(Hotel hotel);
 
     default AllHotelResponse listHotelToListHotelResponse(List<Hotel> hotels){
         return new AllHotelResponse(hotels

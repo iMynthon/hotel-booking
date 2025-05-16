@@ -1,17 +1,18 @@
 package com.example.hotelbookingapplication.service.impl;
 
 import com.example.hotelbookingapplication.exception.EntityNotFoundException;
-import com.example.hotelbookingapplication.mapper.HotelMapper;
 import com.example.hotelbookingapplication.mapper.RoomMapper;
 import com.example.hotelbookingapplication.model.Room;
 import com.example.hotelbookingapplication.repository.RoomRepository;
+import com.example.hotelbookingapplication.repository.specification.RoomSpecification;
 import com.example.hotelbookingapplication.service.HotelBookingService;
+import com.example.hotelbookingapplication.validation.filter.RoomValidatorFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,8 +25,14 @@ public class RoomService implements HotelBookingService<Room> {
     @Setter(onMethod_ = @Autowired)
     private RoomMapper roomMapper;
 
-    public List<Room> findAll() {
-        return roomRepository.findAll();
+    public List<Room> findAll(RoomValidatorFilter filter) {
+        return roomRepository.findAll(
+                RoomSpecification.withFilter(filter),
+                        PageRequest.of(
+                        filter.getPageNumber(),
+                        filter.getPageSize(),
+                        Sort.by("id")))
+                .getContent();
     }
 
     @Override

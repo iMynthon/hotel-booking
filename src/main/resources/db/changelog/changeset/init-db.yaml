@@ -1,0 +1,229 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: hotels
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: distance_from_center_city
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rating
+                  type: numeric(3,2)
+              - column:
+                  name: number_of_rating
+                  type: int
+
+  - changeSet:
+      id: 3
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: rooms
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number_of_people
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hotel_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_hotel
+                    reference: hotels(id)
+                    nullable: false
+  - changeSet:
+      id: 4
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: rooms_unavailable_date
+            columns:
+              - column:
+                  name: rooms_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_rooms
+                    reference: rooms(id)
+                    nullable: false
+              - column:
+                  name: unavailable_date
+                  type: date
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: rooms_unavailable_date
+            columnNames: rooms_id, unavailable_date
+            constraintName: pk_rooms_unavailable_date
+
+  - changeSet:
+      id: 5
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: arrival_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: departure_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_booking_rooms
+                    reference: rooms(id)
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_booking_user
+                    reference: users(id)
+                    nullable: false
+              - addCheckConstraint:
+                  tableName: bookings
+                  constraintName: chk_booking_dates
+                  expression: "departure_date > arrival_date"
+
+  - changeSet:
+      id: 6
+      author: Mynthon
+      changes:
+        - createTable:
+            tableName: authorities
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(55)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    foreignKeyName: fk_authorities_user
+                    reference: users(id)
+                    nullable: false
+  - changeSet:
+      id: 7
+      author: Mynthon
+      changes:
+        - createIndex:
+            tableName: rooms_unavailable_date
+            columns:
+              - column:
+                  name: unavailable_date
+            indexName: idx_rooms_unavailable_date
+
+
+
+
+
+

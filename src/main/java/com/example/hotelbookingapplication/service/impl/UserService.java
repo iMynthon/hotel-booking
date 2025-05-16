@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +61,7 @@ public class UserService {
              throw new EntityNotFoundException(String.format("User под id:{%s} - не найдем",id));
          }
          userRepository.deleteById(id);
+
     }
 
     private void checkDuplicateUserDataSave(User user){

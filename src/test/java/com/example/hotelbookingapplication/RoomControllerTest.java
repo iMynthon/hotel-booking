@@ -4,37 +4,32 @@ import com.example.hotelbookingapplication.dto.request.UpsertRoomRequest;
 import com.example.hotelbookingapplication.model.Room;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.Commit;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@AutoConfigureMockMvc
 public class RoomControllerTest extends AbstractTest{
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
     @DisplayName("Тестовый поиск Room по id")
-    @WithMockUser()
+    @WithMockUser(username = "user",roles = "USER")
     public void testFindById() throws Exception{
+
         Room luxuryRoom = roomRepository.findByName("Luxury Room").orElseThrow();
         mockMvc.perform(get("/api/room/{id}",luxuryRoom.getId()))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.name").value(luxuryRoom.getName()))
-                .andExpect(jsonPath("$.unavailableDate.length()").value(3))
+                .andExpect(jsonPath("$.unavailableDate.length()").value(2))
                 .andExpect(jsonPath("$.hotel").value("Grand Plaza"));
 
     }
@@ -120,7 +115,7 @@ public class RoomControllerTest extends AbstractTest{
 
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Commit
     @DisplayName("Тестовое удаление Room")
     @WithMockUser(username = "admin",roles = "ADMIN")
     public void testDeleteByIdRoom() throws Exception{

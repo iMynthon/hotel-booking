@@ -1,10 +1,11 @@
 package com.example.hotelbookingapplication.controller;
 
 import com.example.hotelbookingapplication.dto.request.UpsertRoomRequest;
+import com.example.hotelbookingapplication.dto.response.AllRoomResponse;
 import com.example.hotelbookingapplication.dto.response.RoomResponse;
 import com.example.hotelbookingapplication.mapper.RoomMapper;
-import com.example.hotelbookingapplication.model.Room;
 import com.example.hotelbookingapplication.service.impl.RoomService;
+import com.example.hotelbookingapplication.validation.filter.RoomValidatorFilter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,14 @@ public class RoomController {
     private final RoomMapper roomMapper;
 
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @GetMapping
+    public AllRoomResponse findAll(@Valid RoomValidatorFilter roomFilter){
+        return roomMapper.roomListToResponseList(roomService.findAll(roomFilter));
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{id}")
     public RoomResponse findById(@PathVariable Integer id){
         return roomMapper.roomToResponse(roomService.findById(id));

@@ -18,6 +18,8 @@ public class RoomResponse {
 
     private Integer number;
 
+    private Integer price;
+
     private Integer numberOfPeople;
 
     private String hotel;

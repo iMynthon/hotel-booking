@@ -4,11 +4,10 @@ import com.example.hotelbookingapplication.exception.DuplicateDataException;
 import com.example.hotelbookingapplication.exception.EntityNotFoundException;
 import com.example.hotelbookingapplication.mapper.BookingMapper;
 import com.example.hotelbookingapplication.model.Booking;
-import com.example.hotelbookingapplication.model.Hotel;
 import com.example.hotelbookingapplication.model.Room;
 import com.example.hotelbookingapplication.repository.BookingRepository;
 import com.example.hotelbookingapplication.service.HotelBookingService;
-import com.example.hotelbookingapplication.validation.PaginationFilter;
+import com.example.hotelbookingapplication.validation.filter.HotelValidatorFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,7 +29,7 @@ public class BookingService implements HotelBookingService<Booking> {
     @Setter(onMethod_ = @Autowired)
     private BookingMapper bookingMapper;
 
-    public List<Booking> findAll(PaginationFilter filter){
+    public List<Booking> findAll(HotelValidatorFilter filter){
         return bookingRepository.findAll(
                         PageRequest.of(
                                 filter.getPageNumber(),
@@ -71,7 +69,7 @@ public class BookingService implements HotelBookingService<Booking> {
 
     @Override
     public void deleteById(Integer id) {
-        if(bookingRepository.existsById(id)){
+        if(!bookingRepository.existsById(id)){
             throw new EntityNotFoundException(String.format("Бронь по id:{%s} - не найдена",id));
         }
         bookingRepository.deleteById(id);

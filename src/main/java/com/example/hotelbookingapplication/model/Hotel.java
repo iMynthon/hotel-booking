@@ -3,6 +3,7 @@ package com.example.hotelbookingapplication.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,9 @@ public class Hotel {
     @Column(name = "distance_from_center_city")
     private Double distanceFromCenterCity;
 
-    private Float rating;
+    @Column(columnDefinition = "numeric(3,2)")
+    private BigDecimal rating;
+
     @Column(name = "number_of_rating")
     private Integer numberOfRating;
 

@@ -1,27 +1,27 @@
 package com.example.hotelbookingapplication;
 
+import com.example.hotelbookingapplication.dto.request.HotelEstimateRequest;
 import com.example.hotelbookingapplication.dto.request.UpsertHotelRequest;
 import com.example.hotelbookingapplication.model.Hotel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@AutoConfigureMockMvc
-public class HotelControllerTest extends AbstractTest{
 
-    @Autowired
-    private MockMvc mockMvc;
+public class HotelControllerTest extends AbstractTest{
 
     @Test
     @DisplayName("Тестовый поиск всех отелей")
+    @WithMockUser(username = "user",roles = "USER")
     public void testFindAll() throws Exception{
 
         mockMvc.perform(get("/api/hotel"))
@@ -31,8 +31,9 @@ public class HotelControllerTest extends AbstractTest{
 
     @Test
     @DisplayName("тестовый поиск отеля по id")
+    @WithMockUser(username = "user",roles = "USER")
     public void testFindById() throws Exception{
-        Hotel expectedHotel = hotelRepository.findByName("Grand Plaza").orElseThrow();
+        Hotel expectedHotel = hotelRepository.findByNameIgnoreCase("Grand Plaza").orElseThrow();
         assertNotNull(expectedHotel);
         mockMvc.perform(get("/api/hotel/{id}",expectedHotel.getId()))
                 .andExpect(status().isOk())
@@ -43,6 +44,7 @@ public class HotelControllerTest extends AbstractTest{
 
     @Test
     @DisplayName("Тестовое сохранение сущности Hotel")
+    @WithMockUser(username = "admin",roles = "ADMIN")
     public void testSaveHotel() throws Exception{
         UpsertHotelRequest request = UpsertHotelRequest.builder()
                 .name("save hotel")
@@ -66,7 +68,31 @@ public class HotelControllerTest extends AbstractTest{
     }
 
     @Test
+    @DisplayName("Тестовое оценивание отеля")
+    @WithMockUser(username = "user",roles = "USER")
+    public void testEstimateHotel() throws Exception{
+
+        HotelEstimateRequest request = HotelEstimateRequest
+                .builder()
+                .name("Grand Plaza")
+                .newMark(new BigDecimal("3.2"))
+                .build();
+
+        mockMvc.perform(post("/api/hotel/estimate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.name").value(request.name()))
+                .andExpect(jsonPath("$.numberOfRating").value(121))
+                .andExpect(jsonPath("$.rating").value("3.99"));
+
+
+    }
+
+    @Test
     @DisplayName("Тестовое обновление сущности Hotel")
+    @WithMockUser(username = "admin",roles = "ADMIN")
     public void testUpdateHotel() throws Exception{
         UpsertHotelRequest request = UpsertHotelRequest.builder()
                 .name("update hotel")
@@ -76,7 +102,7 @@ public class HotelControllerTest extends AbstractTest{
                 .distanceFromCenterCity((float) 0.8)
                 .build();
 
-        Hotel deprecatedHotel = hotelRepository.findByName("Grand Plaza").orElseThrow();
+        Hotel deprecatedHotel = hotelRepository.findByNameIgnoreCase("Grand Plaza").orElseThrow();
 
         assertEquals(2,hotelRepository.count());
 
@@ -93,8 +119,9 @@ public class HotelControllerTest extends AbstractTest{
 
     @Test
     @DisplayName("Тестовое удаление сущности Hotel")
+    @WithMockUser(username = "admin",roles = "ADMIN")
     public void testDeleteById() throws Exception{
-        Hotel hotel = hotelRepository.findByName("Grand Plaza").orElseThrow();
+        Hotel hotel = hotelRepository.findByNameIgnoreCase("Grand Plaza").orElseThrow();
 
         assertEquals(2,hotelRepository.count());
 

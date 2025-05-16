@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.11"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.liquibase.gradle") version "2.2.0"
 }
 
 group = "com.example"
@@ -29,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.mapstruct:mapstruct:1.5.4.Final")
+	implementation("org.liquibase:liquibase-core:4.31.1")
 	runtimeOnly("org.postgresql:postgresql:42.7.2")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")

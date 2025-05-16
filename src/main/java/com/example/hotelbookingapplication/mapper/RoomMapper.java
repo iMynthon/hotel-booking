@@ -1,6 +1,7 @@
 package com.example.hotelbookingapplication.mapper;
 
 import com.example.hotelbookingapplication.dto.request.UpsertRoomRequest;
+import com.example.hotelbookingapplication.dto.response.AllRoomResponse;
 import com.example.hotelbookingapplication.dto.response.RoomResponse;
 import com.example.hotelbookingapplication.model.Room;
 import com.example.hotelbookingapplication.service.impl.HotelService;
@@ -25,6 +26,10 @@ public interface RoomMapper {
     @Mapping(target = "hotel",source = "hotel.name")
     @Mapping(target = "unavailableDate",qualifiedByName = "parseLocalDateToString")
     RoomResponse roomToResponse(Room room);
+
+    default AllRoomResponse roomListToResponseList(List<Room> rooms){
+        return new AllRoomResponse(rooms.stream().map(this::roomToResponse).toList());
+    }
 
     @Mapping(target = "hotel",ignore = true)
     void update(@MappingTarget Room destination,Room root);

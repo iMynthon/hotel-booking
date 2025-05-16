@@ -52,7 +52,7 @@ public class SecurityConfig {
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
                     response.getWriter().write(new ObjectMapper().writeValueAsString(
-                            new ErrorResponse("Для доступа к данному ресурсы надо пройти аутентификацию")));
+                            new ErrorResponse("Ошибка аунтефикаци - вы не зарегистрированы или при регистрации не указали роль: ROLE_USER, ROLE_ADMIN - " + authException.getMessage())));
                 })).csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->

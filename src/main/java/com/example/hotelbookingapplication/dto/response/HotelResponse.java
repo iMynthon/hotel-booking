@@ -2,6 +2,7 @@ package com.example.hotelbookingapplication.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class HotelResponse {
 
     private Double distanceFromCenterCity;
 
-    private Byte rating;
+    private BigDecimal rating;
 
     private Integer numberOfRating;
 

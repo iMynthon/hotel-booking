@@ -23,11 +23,11 @@ public class User {
     private String password;
 
     @Builder.Default
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Authority> roles = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
 }
 

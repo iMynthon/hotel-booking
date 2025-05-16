@@ -16,7 +16,6 @@ import java.util.List;
 @Builder
 public class UpsertRoomRequest {
 
-
     @NotBlank(message = "Не задано поле: name")
     private String name;
 
@@ -25,6 +24,9 @@ public class UpsertRoomRequest {
 
     @NotNull(message = "Не задано поле: number")
     private Integer number;
+
+    @NotNull(message = "Не задано поле: price")
+    private Integer price;
 
     @NotNull(message = "Не задано поле: numberOfPeople")
     private Integer numberOfPeople;

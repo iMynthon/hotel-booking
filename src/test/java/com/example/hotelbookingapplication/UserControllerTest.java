@@ -4,11 +4,8 @@ import com.example.hotelbookingapplication.model.Authority;
 import com.example.hotelbookingapplication.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static com.example.hotelbookingapplication.model.RoleType.ROLE_ADMIN;
 import static com.example.hotelbookingapplication.model.RoleType.ROLE_USER;
@@ -17,11 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@AutoConfigureMockMvc
+
 public class UserControllerTest extends AbstractTest{
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
     @DisplayName("Тестовый поиск User по id и имени пользователя")
@@ -126,15 +121,16 @@ public class UserControllerTest extends AbstractTest{
     @WithMockUser(username = "admin",roles = "ADMIN")
     public void testDeleteById() throws Exception{
 
-        User admin = userRepository.findByUsernameIgnoreCase("Администратор системы").orElseThrow();
+        User user2 = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
 
         assertEquals(2,userRepository.count());
         assertEquals(2,authorityRepository.count());
 
-        mockMvc.perform(delete("/api/user/{id}",admin.getId()))
-                .andExpect(status().isNoContent());
 
-        assertEquals(1,userRepository.count());
+        mockMvc.perform(delete("/api/user/{id}", user2.getId()))
+                        .andExpect(status().isNoContent());
+
         assertEquals(1,authorityRepository.count());
+        assertEquals(1,userRepository.count());
     }
 }

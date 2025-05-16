@@ -7,13 +7,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +25,6 @@ import java.util.List;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
-@Transactional
 public class AbstractTest {
 
     @Autowired
@@ -43,6 +45,9 @@ public class AbstractTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    protected MockMvc mockMvc;
+
     @Container
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17")
             .withReuse(true);
@@ -55,11 +60,13 @@ public class AbstractTest {
     }
 
     @BeforeEach
+    @Transactional
     void setUp(){
-        hotelRepository.deleteAll();
-        roomRepository.deleteAll();
-        userRepository.deleteAll();
-        authorityRepository.deleteAll();
+        hotelRepository.deleteAllInBatch();
+        roomRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+        bookingRepository.deleteAllInBatch();
+        authorityRepository.deleteAllInBatch();
 
         Room standardRoom = Room.builder()
                 .name("Standard Room")
@@ -72,16 +79,21 @@ public class AbstractTest {
                 .name("Luxury Room")
                 .number(103)
                 .description("Номер с видом на море и мини-баром")
+                .numberOfPeople(5)
                 .build();
 
         Room availableRoom = Room.builder()
                 .name("Available Room")
                 .number(104)
+                .description("Номер с видом на пляж")
+                .numberOfPeople(3)
                 .build();
 
         Room defaultRoom = Room.builder()
                 .name("Default Room")
                 .number(101)
+                .description("Оьбычная комната")
+                .numberOfPeople(2)
                 .build();
 
         Hotel testHotel = Hotel.builder()
@@ -90,7 +102,7 @@ public class AbstractTest {
                 .city("Москва")
                 .address("ул. Тверская, 10")
                 .distanceFromCenterCity(0.5)
-                .rating((float) 4)
+                .rating(new BigDecimal(4))
                 .numberOfRating(120)
                 .rooms(new ArrayList<>(List.of(standardRoom,luxuryRoom)))
                 .build();
@@ -101,16 +113,15 @@ public class AbstractTest {
                 .city("Москва")
                 .address("ул. Ленина, 50")
                 .distanceFromCenterCity(1.0)
-                .rating((float) 3)
+                .rating(new BigDecimal(3))
                 .numberOfRating(250)
                 .rooms(new ArrayList<>(List.of(defaultRoom,availableRoom)))
                 .build();
+
         standardRoom.setHotel(testHotel);
         luxuryRoom.setHotel(testHotel);
         defaultRoom.setHotel(testHotel2);
         availableRoom.setHotel(testHotel2);
-
-        hotelRepository.saveAll(new ArrayList<>(List.of(testHotel,testHotel2)));
 
         User user = User.builder()
                 .username("Пользователь системы")
@@ -161,16 +172,20 @@ public class AbstractTest {
 
         user.getBookings().add(booking);
         standardRoom.getBookings().add(booking);
+        standardRoom.getUnavailableDate().addAll(new ArrayList<>(
+                List.of(booking.getArrivalDate(),booking.getDepartureDate())));
+
         admin.getBookings().add(booking1);
         luxuryRoom.getBookings().add(booking1);
+        luxuryRoom.getUnavailableDate().addAll(new ArrayList<>(
+                List.of(booking1.getArrivalDate(),booking1.getDepartureDate())));
+
         user.getBookings().add(booking2);
         availableRoom.getBookings().add(booking2);
-        userRepository.saveAll(new ArrayList<>(List.of(user,admin)));
-    }
+        availableRoom.getUnavailableDate().addAll(new ArrayList<>(
+                List.of(booking2.getArrivalDate(),booking2.getDepartureDate())));
 
-    protected List<LocalDate> createDate(LocalDate... dates) {
-        List<LocalDate> result = new ArrayList<>();
-        Collections.addAll(result, dates);
-        return result;
+        userRepository.saveAll(new ArrayList<>(List.of(user,admin)));
+
     }
 }
