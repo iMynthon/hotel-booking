@@ -1,6 +1,6 @@
 package com.example.hotelbookingapplication.dto.response;
 
-import com.example.hotelbookingapplication.model.RoleType;
+import com.example.hotelbookingapplication.model.jpa.RoleType;
 import lombok.*;
 
 @Getter @Setter

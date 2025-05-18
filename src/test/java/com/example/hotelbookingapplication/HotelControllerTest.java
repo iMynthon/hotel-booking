@@ -2,7 +2,7 @@ package com.example.hotelbookingapplication;
 
 import com.example.hotelbookingapplication.dto.request.HotelEstimateRequest;
 import com.example.hotelbookingapplication.dto.request.UpsertHotelRequest;
-import com.example.hotelbookingapplication.model.Hotel;
+import com.example.hotelbookingapplication.model.jpa.Hotel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

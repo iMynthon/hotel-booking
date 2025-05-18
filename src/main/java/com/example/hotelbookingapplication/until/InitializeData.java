@@ -1,7 +1,11 @@
 package com.example.hotelbookingapplication.until;
 
-import com.example.hotelbookingapplication.model.*;
-import com.example.hotelbookingapplication.repository.UserRepository;
+import com.example.hotelbookingapplication.model.jpa.*;
+import com.example.hotelbookingapplication.model.mongodb.BookingRegistrationStats;
+import com.example.hotelbookingapplication.model.mongodb.RegistrationUserStats;
+import com.example.hotelbookingapplication.repository.jpa.UserRepository;
+import com.example.hotelbookingapplication.repository.mongodb.BookingRegistrationStatsRepository;
+import com.example.hotelbookingapplication.repository.mongodb.RegistrationUserStatsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,7 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +30,10 @@ public class InitializeData {
     private final UserRepository userRepository;
 
     private final PasswordEncoder encoder;
+
+    private final BookingRegistrationStatsRepository bookingRegistrationStatsRepository;
+
+    private final RegistrationUserStatsRepository registrationUserStatsRepository;
 
     @EventListener
     private void initDB(ApplicationReadyEvent applicationReadyEvent){
@@ -143,6 +153,30 @@ public class InitializeData {
         budgetSingle.getBookings().add(booking2);
 
         userRepository.saveAll(new ArrayList<>(List.of(admin,user1,user2)));
+        saveInMongoUserStats(admin,user1,user2);
+        saveInMongoBookingStats(booking1,booking2);
         log.info("Сохранение завершено");
+    }
+
+    private void saveInMongoBookingStats(Booking... booking) {
+        Arrays.stream(booking)
+                .forEach(currentBooking ->
+                        bookingRegistrationStatsRepository
+                                .save(BookingRegistrationStats.builder()
+                                        .userId(currentBooking.getUser().getId())
+                                        .arrivalDate(currentBooking.getArrivalDate())
+                                        .departureDate(currentBooking.getDepartureDate())
+                                        .registeredTime(LocalDateTime.now())
+                                        .booking(currentBooking)
+                                        .build()));
+    }
+
+    private void saveInMongoUserStats(User... user){
+        Arrays.stream(user)
+                .forEach(currentUser -> registrationUserStatsRepository.save(RegistrationUserStats.builder()
+                        .id(currentUser.getId())
+                        .registeredTime(LocalDateTime.now())
+                        .user(currentUser)
+                        .build()));
     }
 }

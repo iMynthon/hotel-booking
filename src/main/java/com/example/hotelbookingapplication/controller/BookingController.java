@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class BookingController {
 
+
     private final BookingService bookingService;
 
     private final BookingMapper bookingMapper;

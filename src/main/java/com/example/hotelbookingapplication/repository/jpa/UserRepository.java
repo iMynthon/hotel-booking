@@ -1,6 +1,7 @@
-package com.example.hotelbookingapplication.repository;
+package com.example.hotelbookingapplication.repository.jpa;
 
-import com.example.hotelbookingapplication.model.User;
+import com.example.hotelbookingapplication.model.jpa.User;
+
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,9 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
     @EntityGraph(attributePaths = {"roles"})
     Optional<User> findByUsernameIgnoreCase(String username);
+
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<User> findById(Integer id);
 
     boolean existsByUsernameIgnoreCase(String username);
 

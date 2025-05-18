@@ -1,6 +1,6 @@
-package com.example.hotelbookingapplication.repository.specification;
+package com.example.hotelbookingapplication.repository.jpa.specification;
 
-import com.example.hotelbookingapplication.model.Hotel;
+import com.example.hotelbookingapplication.model.jpa.Hotel;
 import com.example.hotelbookingapplication.validation.filter.HotelValidatorFilter;
 import org.springframework.data.jpa.domain.Specification;
 

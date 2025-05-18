@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse catchValidationException(MethodArgumentNotValidException ve){
-        return new ErrorResponse("Ошибка валидации, неправильный ввод или некорректные данные " + ve.getBindingResult()
+        return new ErrorResponse("Ошибка валидации, неправильный ввод или некорректные данные - " + ve.getBindingResult()
                 .getAllErrors()
                 .stream()
                 .findFirst()
@@ -40,9 +40,4 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(aue.getMessage());
     }
 
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    @ExceptionHandler(Exception.class)
-//    public ErrorResponse catchUnprocessedException(Exception e){
-//        return new ErrorResponse(e.getMessage());
-//    }
 }

@@ -3,7 +3,7 @@ package com.example.hotelbookingapplication.mapper;
 import com.example.hotelbookingapplication.dto.request.UpsertRoomRequest;
 import com.example.hotelbookingapplication.dto.response.AllRoomResponse;
 import com.example.hotelbookingapplication.dto.response.RoomResponse;
-import com.example.hotelbookingapplication.model.Room;
+import com.example.hotelbookingapplication.model.jpa.Room;
 import com.example.hotelbookingapplication.service.impl.HotelService;
 import org.mapstruct.*;
 

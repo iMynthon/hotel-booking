@@ -4,7 +4,7 @@ import com.example.hotelbookingapplication.aop.CheckUserRights;
 import com.example.hotelbookingapplication.dto.request.UpsertUserRequest;
 import com.example.hotelbookingapplication.dto.response.UserResponse;
 import com.example.hotelbookingapplication.mapper.UserMapper;
-import com.example.hotelbookingapplication.model.RoleType;
+import com.example.hotelbookingapplication.model.jpa.RoleType;
 import com.example.hotelbookingapplication.service.impl.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

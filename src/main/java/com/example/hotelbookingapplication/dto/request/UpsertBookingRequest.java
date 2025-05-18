@@ -1,6 +1,7 @@
 package com.example.hotelbookingapplication.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter @Setter
@@ -14,6 +15,6 @@ public class UpsertBookingRequest {
     @NotBlank(message = "Поле departureDate не может быть пустым - формат даты 15.06.1990")
     private String departureDate;
 
-    @NotBlank(message = "Поле roomNumber не может быть пустым")
+    @NotNull(message = "Поле roomNumber не может быть пустым")
     private Integer roomNumber;
 }

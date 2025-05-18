@@ -4,7 +4,7 @@ import com.example.hotelbookingapplication.dto.request.UpsertHotelRequest;
 import com.example.hotelbookingapplication.dto.response.AllHotelResponse;
 import com.example.hotelbookingapplication.dto.response.HotelRatingResponse;
 import com.example.hotelbookingapplication.dto.response.HotelResponse;
-import com.example.hotelbookingapplication.model.Hotel;
+import com.example.hotelbookingapplication.model.jpa.Hotel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

@@ -1,6 +1,6 @@
-package com.example.hotelbookingapplication.repository;
+package com.example.hotelbookingapplication.repository.jpa;
 
-import com.example.hotelbookingapplication.model.Room;
+import com.example.hotelbookingapplication.model.jpa.Room;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

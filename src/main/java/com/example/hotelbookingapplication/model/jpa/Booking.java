@@ -1,11 +1,11 @@
-package com.example.hotelbookingapplication.model;
+package com.example.hotelbookingapplication.model.jpa;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 @Entity(name = "bookings")
@@ -26,5 +26,6 @@ public class Booking {
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 }

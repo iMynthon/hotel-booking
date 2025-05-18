@@ -3,7 +3,7 @@ package com.example.hotelbookingapplication.mapper;
 import com.example.hotelbookingapplication.dto.request.UpsertBookingRequest;
 import com.example.hotelbookingapplication.dto.response.AllBookingResponse;
 import com.example.hotelbookingapplication.dto.response.BookingResponse;
-import com.example.hotelbookingapplication.model.Booking;
+import com.example.hotelbookingapplication.model.jpa.Booking;
 import com.example.hotelbookingapplication.service.impl.UserService;
 import org.mapstruct.*;
 
@@ -37,6 +37,7 @@ public interface BookingMapper {
     }
 
     @Mapping(target = "user",ignore = true)
+    @Mapping(target = "room",ignore = true)
     void update(@MappingTarget Booking destination,Booking root);
 
     @Named("stringToLocalDate")

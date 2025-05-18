@@ -2,7 +2,7 @@ package com.example.hotelbookingapplication.mapper;
 
 import com.example.hotelbookingapplication.dto.request.UpsertUserRequest;
 import com.example.hotelbookingapplication.dto.response.UserResponse;
-import com.example.hotelbookingapplication.model.User;
+import com.example.hotelbookingapplication.model.jpa.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

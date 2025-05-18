@@ -1,8 +1,6 @@
 package com.example.hotelbookingapplication.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -14,7 +12,9 @@ public record HotelEstimateRequest(
         String name,
 
         @NotNull(message = "Вы не поставили оценку")
-        @Size(min = 1, max = 5, message = "Минимальная оценка - {min}, максимальная - {max}")
+        @DecimalMin(value = "1.0", message = "Минимальная оценка - {value}")
+        @DecimalMax(value = "5.0", message = "Максимальная оценка - {value}")
+        @Digits(integer = 1, fraction = 1, message = "Допустимый формат: от 1.0 до 5.0 с одной цифрой после точки")
         BigDecimal newMark
 ) {
 

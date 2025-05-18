@@ -1,10 +1,9 @@
 package com.example.hotelbookingapplication.service.impl;
 
 import com.example.hotelbookingapplication.exception.AuthorityUserException;
-import com.example.hotelbookingapplication.model.Authority;
-import com.example.hotelbookingapplication.repository.AuthorityRepository;
+import com.example.hotelbookingapplication.model.jpa.Authority;
+import com.example.hotelbookingapplication.repository.jpa.AuthorityRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.expression.AccessException;
 import org.springframework.stereotype.Service;
 
 @Service

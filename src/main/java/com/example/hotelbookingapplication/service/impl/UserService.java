@@ -3,15 +3,19 @@ package com.example.hotelbookingapplication.service.impl;
 import com.example.hotelbookingapplication.exception.DuplicateDataException;
 import com.example.hotelbookingapplication.exception.EntityNotFoundException;
 import com.example.hotelbookingapplication.mapper.UserMapper;
-import com.example.hotelbookingapplication.model.Authority;
-import com.example.hotelbookingapplication.model.RoleType;
-import com.example.hotelbookingapplication.model.User;
-import com.example.hotelbookingapplication.repository.UserRepository;
+import com.example.hotelbookingapplication.model.jpa.Authority;
+import com.example.hotelbookingapplication.model.jpa.RoleType;
+import com.example.hotelbookingapplication.model.jpa.User;
+import com.example.hotelbookingapplication.model.kafka.UserEvent;
+import com.example.hotelbookingapplication.repository.jpa.UserRepository;
+import com.example.hotelbookingapplication.service.mongodb.RegistrationUserStatsService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +25,13 @@ public class UserService {
 
     private final AuthorityService authorityService;
 
+    private final RegistrationUserStatsService registrationUserStatsService;
+
     private final PasswordEncoder encoder;
 
     private final UserMapper userMapper;
+
+    private final KafkaTemplate<String, UserEvent> kafkaTemplate;
 
     public User findById(Integer id) {
         return userRepository.findById(id).orElseThrow(()->
@@ -43,7 +51,9 @@ public class UserService {
                 .user(entity).build());
         entity.getRoles().add(authority);
         entity.setPassword(encoder.encode(entity.getPassword()));
-        return userRepository.save(entity);
+        User newUser = userRepository.save(entity);
+        createSendMessageUser(newUser.getId());
+        return newUser;
     }
 
     public User update(RoleType role, User entity) {
@@ -61,7 +71,7 @@ public class UserService {
              throw new EntityNotFoundException(String.format("User под id:{%s} - не найдем",id));
          }
          userRepository.deleteById(id);
-
+         registrationUserStatsService.deleteById(id);
     }
 
     private void checkDuplicateUserDataSave(User user){
@@ -73,5 +83,12 @@ public class UserService {
            throw new DuplicateDataException(
                    String.format("User с таким email - {%s} уже зарегистрирован",user.getUsername()));
        }
+    }
+
+    private void createSendMessageUser(Integer id){
+        String userRegisteredTopic = "user_registered";
+        kafkaTemplate.send(userRegisteredTopic,
+                "user_registered" + System.currentTimeMillis(),
+                new UserEvent(id,LocalDateTime.now()));
     }
 }

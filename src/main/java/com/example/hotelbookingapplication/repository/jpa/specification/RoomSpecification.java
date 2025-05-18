@@ -1,8 +1,7 @@
-package com.example.hotelbookingapplication.repository.specification;
+package com.example.hotelbookingapplication.repository.jpa.specification;
 
-import com.example.hotelbookingapplication.model.Booking;
-import com.example.hotelbookingapplication.model.Hotel;
-import com.example.hotelbookingapplication.model.Room;
+import com.example.hotelbookingapplication.model.jpa.Booking;
+import com.example.hotelbookingapplication.model.jpa.Room;
 import com.example.hotelbookingapplication.validation.filter.RoomValidatorFilter;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;

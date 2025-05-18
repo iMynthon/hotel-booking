@@ -1,22 +1,24 @@
 package com.example.hotelbookingapplication;
 import com.example.hotelbookingapplication.dto.request.UpsertBookingRequest;
-import com.example.hotelbookingapplication.model.Booking;
-import com.example.hotelbookingapplication.model.User;
+import com.example.hotelbookingapplication.model.jpa.Booking;
+import com.example.hotelbookingapplication.model.jpa.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 public class BookingControllerTest extends AbstractTest{
+
+    private final static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 
     @Test
@@ -36,17 +38,6 @@ public class BookingControllerTest extends AbstractTest{
 
         mockMvc.perform(get("/api/booking"))
                 .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("Тестовое получение всех броней")
-    @WithMockUser(username = "admin",roles = "ADMIN")
-    public void testGetByIdBooking() throws Exception{
-
-        mockMvc.perform(get("/api/booking"))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andExpect(jsonPath("$.bookingList.length()").value(3));
     }
 
     @Test
@@ -84,20 +75,48 @@ public class BookingControllerTest extends AbstractTest{
     }
 
     @Test
+    @DisplayName("Тестовое обновление брони, смена дат")
+    @WithMockUser(username = "admin",roles = "ADMIN")
+    public void testUpdateBooking() throws Exception{
+        User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
+        List<Booking> bookingList = bookingRepository.findByUserId(user.getId()).orElseThrow();
+        Booking booking = bookingList.getFirst();
+
+        UpsertBookingRequest request = UpsertBookingRequest.builder()
+                .arrivalDate("13.04.2025")
+                .departureDate("20.04.2025")
+                .roomNumber(101)
+                .build();
+
+        mockMvc.perform(put("/api/booking/{id}",booking.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        Booking updateBooking = bookingRepository.findById(booking.getId()).orElseThrow();
+
+        assertEquals(updateBooking.getArrivalDate(), LocalDate.parse(request.getArrivalDate(),DATE_FORMATTER));
+        assertEquals(updateBooking.getDepartureDate(),LocalDate.parse(request.getDepartureDate(),DATE_FORMATTER));
+        assertEquals(101, updateBooking.getRoom().getNumber());
+    }
+
+    @Test
     @DisplayName("Тестовое удаление брони")
     @WithMockUser(username = "admin",roles = "ADMIN")
     public void testDeleteById() throws Exception{
         User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
         List<Booking> bookingList = bookingRepository.findByUserId(user.getId()).orElseThrow();
 
-        Booking booking = bookingList.get(0);
+        Booking booking = bookingList.getFirst();
 
         assertEquals(3,bookingRepository.count());
+        assertEquals(3,bookingRegistrationStatsRepository.count());
 
         mockMvc.perform(delete("/api/booking/{id}",booking.getId()))
                 .andExpect(status().isNoContent());
 
         assertEquals(2,bookingRepository.count());
+        assertEquals(2,bookingRegistrationStatsRepository.count());
     }
 
     @Test
@@ -107,7 +126,7 @@ public class BookingControllerTest extends AbstractTest{
         User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
         List<Booking> bookingList = bookingRepository.findByUserId(user.getId()).orElseThrow();
 
-        Booking booking = bookingList.get(0);
+        Booking booking = bookingList.getFirst();
 
         assertEquals(3,bookingRepository.count());
 

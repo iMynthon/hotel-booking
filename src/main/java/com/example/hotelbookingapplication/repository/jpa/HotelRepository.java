@@ -1,6 +1,6 @@
-package com.example.hotelbookingapplication.repository;
+package com.example.hotelbookingapplication.repository.jpa;
 
-import com.example.hotelbookingapplication.model.Hotel;
+import com.example.hotelbookingapplication.model.jpa.Hotel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
