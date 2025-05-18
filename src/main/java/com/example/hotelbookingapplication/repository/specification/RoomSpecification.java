@@ -1,10 +1,21 @@
 package com.example.hotelbookingapplication.repository.specification;
 
+import com.example.hotelbookingapplication.model.Booking;
+import com.example.hotelbookingapplication.model.Hotel;
 import com.example.hotelbookingapplication.model.Room;
 import com.example.hotelbookingapplication.validation.filter.RoomValidatorFilter;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+
 public interface RoomSpecification {
+
+    DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     static Specification<Room> withFilter(RoomValidatorFilter filter){
         return Specification.where(byId(filter.getId()))
@@ -12,7 +23,7 @@ public interface RoomSpecification {
                 .and(byMinPrice(filter.getMinPrice()))
                 .and(byMaxPrice(filter.getMaxPrice()))
                 .and(byArrivalAndDepartureDates(filter.getArrivalDate(), filter.getDepartureDate()))
-                .and(byHotelId(filter.getHotel_id()));
+                .and(byHotelId(filter.getHotelId()));
     }
 
     static Specification<Room> byId(Integer id){
@@ -38,7 +49,7 @@ public interface RoomSpecification {
             if (price == null) {
                 return null;
             }
-            return cb.lessThan(root.get("id"), price);
+            return cb.greaterThanOrEqualTo(root.get("price"),price);
         };
     }
 
@@ -47,7 +58,7 @@ public interface RoomSpecification {
             if (price == null) {
                 return null;
             }
-            return cb.greaterThan(root.get("id"), price);
+            return cb.lessThanOrEqualTo(root.get("price"), price);
         };
     }
 
@@ -56,7 +67,17 @@ public interface RoomSpecification {
             if (arrival == null || departure == null) {
                 return null;
             }
-            return cb.between(root.get("price"), arrival,departure).not();
+            Subquery<Integer> bookingSubquery = Objects.requireNonNull(query).subquery(Integer.class);
+            Root<Booking> bookingRoot = bookingSubquery.from(Booking.class);
+            Predicate dataOverlap = cb.and(
+                    cb.lessThan(bookingRoot.get("arrivalDate"), LocalDate.parse(departure,DATE_FORMATTER)),
+                    cb.greaterThan(bookingRoot.get("departureDate"),LocalDate.parse(arrival,DATE_FORMATTER)));
+            bookingSubquery.select(bookingRoot.get("room").get("id"))
+                    .where(cb.and(
+                            dataOverlap,
+                            cb.equal(bookingRoot.get("room"),root)
+                    ));
+            return cb.not(cb.exists(bookingSubquery));
         };
     }
 
@@ -66,7 +87,7 @@ public interface RoomSpecification {
             if (hotelId == null) {
                 return null;
             }
-            return cb.equal(root.get("hotelId"), hotelId);
+            return cb.equal(root.get("hotel").get("id"), hotelId);
         };
     }
 }

@@ -6,11 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.Commit;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,10 +17,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class RoomControllerTest extends AbstractTest{
 
     @Test
+    @DisplayName("Тестовый поиск всех комнат и проверка валидатора параметров")
+    @WithMockUser(username = "user",roles = "USER")
+    public void testFindAll() throws Exception {
+
+        mockMvc.perform(get("/api/room"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rooms.length()").value(4));
+
+        mockMvc.perform(get("/api/room?pageNumber=0&pageSize=2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rooms.length()").value(2));
+
+        mockMvc.perform(get("/api/room?pageNumber=0&pageSize=2&nama=Available Room"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("Тестовый поиск Room по id")
     @WithMockUser(username = "user",roles = "USER")
     public void testFindById() throws Exception{
-
         Room luxuryRoom = roomRepository.findByName("Luxury Room").orElseThrow();
         mockMvc.perform(get("/api/room/{id}",luxuryRoom.getId()))
                 .andExpect(status().isOk())
@@ -31,7 +44,6 @@ public class RoomControllerTest extends AbstractTest{
                 .andExpect(jsonPath("$.name").value(luxuryRoom.getName()))
                 .andExpect(jsonPath("$.unavailableDate.length()").value(2))
                 .andExpect(jsonPath("$.hotel").value("Grand Plaza"));
-
     }
 
     @Test
@@ -42,6 +54,7 @@ public class RoomControllerTest extends AbstractTest{
                 .name("Persist room")
                 .description("Test persist room")
                 .number(567)
+                .price(500)
                 .unavailableDate(List.of("15.02.2020", "10.08.2017"))
                 .numberOfPeople(5)
                 .hotel("Grand Plaza")
@@ -65,13 +78,14 @@ public class RoomControllerTest extends AbstractTest{
     }
 
     @Test
-    @DisplayName("Тестовое сохранение Room")
+    @DisplayName("Тестовое сохранение м обновление Room")
     @WithMockUser(username = "admin",roles = "ADMIN")
     public void testSaveAndUpdateRoom() throws Exception{
         UpsertRoomRequest request = UpsertRoomRequest.builder()
                 .name("Persist room")
                 .description("Test persist room")
                 .number(567)
+                .price(500)
                 .unavailableDate(List.of("15.02.2020","10.08.2017"))
                 .numberOfPeople(5)
                 .hotel("Grand Plaza")
@@ -94,6 +108,7 @@ public class RoomControllerTest extends AbstractTest{
                 .name("merge room")
                 .description("Test merge room")
                 .number(567)
+                .price(600)
                 .unavailableDate(new ArrayList<>(List.of("13.05.2025", "12.07.2024")))
                 .numberOfPeople(5)
                 .hotel("Grand Plaza")
@@ -115,7 +130,6 @@ public class RoomControllerTest extends AbstractTest{
 
 
     @Test
-    @Commit
     @DisplayName("Тестовое удаление Room")
     @WithMockUser(username = "admin",roles = "ADMIN")
     public void testDeleteByIdRoom() throws Exception{

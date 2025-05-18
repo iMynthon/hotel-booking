@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,7 +18,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest
@@ -72,6 +70,7 @@ public class AbstractTest {
                 .name("Standard Room")
                 .description("Уютный номер с видом во двор")
                 .number(109)
+                .price(500)
                 .numberOfPeople(2)
                 .build();
 
@@ -79,6 +78,7 @@ public class AbstractTest {
                 .name("Luxury Room")
                 .number(103)
                 .description("Номер с видом на море и мини-баром")
+                .price(400)
                 .numberOfPeople(5)
                 .build();
 
@@ -86,6 +86,7 @@ public class AbstractTest {
                 .name("Available Room")
                 .number(104)
                 .description("Номер с видом на пляж")
+                .price(300)
                 .numberOfPeople(3)
                 .build();
 
@@ -93,6 +94,7 @@ public class AbstractTest {
                 .name("Default Room")
                 .number(101)
                 .description("Оьбычная комната")
+                .price(200)
                 .numberOfPeople(2)
                 .build();
 

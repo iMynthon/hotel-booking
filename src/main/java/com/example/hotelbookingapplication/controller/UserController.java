@@ -1,5 +1,6 @@
 package com.example.hotelbookingapplication.controller;
 
+import com.example.hotelbookingapplication.aop.CheckUserRights;
 import com.example.hotelbookingapplication.dto.request.UpsertUserRequest;
 import com.example.hotelbookingapplication.dto.response.UserResponse;
 import com.example.hotelbookingapplication.mapper.UserMapper;
@@ -23,6 +24,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @ResponseStatus(HttpStatus.OK)
+    @CheckUserRights
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/id/{id}")
     public UserResponse findById(@PathVariable Integer id){
@@ -30,6 +32,7 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @CheckUserRights
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/username/{username}")
     public UserResponse findByUsername(@PathVariable(name = "username") String username){
@@ -43,6 +46,7 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @CheckUserRights
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/{id}")
     public UserResponse update(@PathVariable Integer id,
@@ -52,6 +56,7 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CheckUserRights
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Integer id){

@@ -9,9 +9,9 @@ import com.example.hotelbookingapplication.model.User;
 import com.example.hotelbookingapplication.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +46,9 @@ public class UserService {
         return userRepository.save(entity);
     }
 
-    public User update(RoleType role,User entity) {
-        checkDuplicateUserDataSave(entity);
+    public User update(RoleType role, User entity) {
         User exists = findById(entity.getId());
+        checkDuplicateUserDataSave(entity);
         Authority authority = authorityService.findByUserId(entity.getId());
         authority.setRole(role == null ? authority.getRole() : role);
         userMapper.update(exists,entity);

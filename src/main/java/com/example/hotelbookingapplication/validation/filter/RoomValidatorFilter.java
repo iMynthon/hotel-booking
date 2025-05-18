@@ -35,5 +35,5 @@ public class RoomValidatorFilter extends ValidatorFilter {
 
     private String departureDate;
 
-    private Integer hotel_id;
+    private Integer hotelId;
 }

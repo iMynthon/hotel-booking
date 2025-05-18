@@ -20,13 +20,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class HotelControllerTest extends AbstractTest{
 
     @Test
-    @DisplayName("Тестовый поиск всех отелей")
+    @DisplayName("Тестовый поиск всех отелей и проверка работы валидатора параметров запроса")
     @WithMockUser(username = "user",roles = "USER")
     public void testFindAll() throws Exception{
 
-        mockMvc.perform(get("/api/hotel"))
+        mockMvc.perform(get("/api/hotel?pageNumber=0&pageSize=10&city=Москва"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.hotels.length()").value(2));
+
+        mockMvc.perform(get("/api/hotel?pageNumber=0&pageSize=10&cito=Москва"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

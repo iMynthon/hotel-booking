@@ -1,6 +1,7 @@
 package com.example.hotelbookingapplication.validation.service;
 
 import com.example.hotelbookingapplication.validation.filter.HotelValidatorFilter;
+import com.example.hotelbookingapplication.validation.filter.RoomValidatorFilter;
 import com.example.hotelbookingapplication.validation.filter.ValidatorFilter;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -11,13 +12,23 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ValidatorService implements ConstraintValidator<CheckValidPagination, ValidatorFilter>{
 
-    private List<String> getFieldNames(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields())
+    private static final List<String> ALL_VALID_PARAMS = fieldsFilterClass();
+
+    private static List<String> fieldsFilterClass(){
+        return Stream.of(
+                ValidatorFilter.class,
+                HotelValidatorFilter.class,
+                RoomValidatorFilter.class
+        ).map(clazz -> Arrays.stream(clazz.getDeclaredFields())
                 .map(Field::getName)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .flatMap(List::stream)
+                .distinct()
+                .toList();
     }
 
     @Override
@@ -38,15 +49,15 @@ public class ValidatorService implements ConstraintValidator<CheckValidPaginatio
     }
 
     public boolean checkNameRequest(ConstraintValidatorContext context) {
-        List<String> fields = getFieldNames(HotelValidatorFilter.class);
         return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                 .getRequest()
                 .getParameterMap()
                 .entrySet()
                 .stream()
                 .allMatch(paramName -> {
-                    if(!fields.contains(paramName.getKey())){
-                        assemblingMessage(context,String.format("Неверный параметр запроса %s. Параметры запроса: %s",paramName.getKey(),fields));
+                    if(!ALL_VALID_PARAMS.contains(paramName.getKey())){
+                        assemblingMessage(context,String.format("Неверный параметр запроса %s. Параметры запроса: %s"
+                                ,paramName.getKey(),ALL_VALID_PARAMS));
                         return false;
                     }
                     return true;
@@ -57,4 +68,6 @@ public class ValidatorService implements ConstraintValidator<CheckValidPaginatio
         context.buildConstraintViolationWithTemplate(message)
                 .addConstraintViolation();
     }
+
+
 }

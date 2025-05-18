@@ -28,8 +28,6 @@ public class InitializeData {
     @EventListener
     private void initDB(ApplicationReadyEvent applicationReadyEvent){
 
-
-
         log.info("Сохранение тестовых данных");
         User admin = User.builder()
                 .username("admin")

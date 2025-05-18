@@ -17,10 +17,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 public class UserControllerTest extends AbstractTest{
 
-
     @Test
     @DisplayName("Тестовый поиск User по id и имени пользователя")
-    @WithMockUser(username = "admin",roles = "ADMIN")
+    @WithMockUser(username = "Администратор системы",roles = "ADMIN")
     public void testFindByIdAndUsernameToUser() throws Exception{
 
         User admin = userRepository.findByUsernameIgnoreCase("Администратор системы").orElseThrow();
@@ -36,6 +35,39 @@ public class UserControllerTest extends AbstractTest{
                 .andExpect(jsonPath("$.roles.length()").value(1));
 
         assertTrue(admin.getRoles().stream().anyMatch(a -> a.getRole().equals(ROLE_ADMIN)));
+    }
+
+    @Test
+    @DisplayName("Тестовый поиск User по id и имени пользователя на проверку прав просмотра")
+    @WithMockUser(username = "Пользователь системы",roles = "USER")
+    public void testFindByIdAndUsernameAnyUser() throws Exception{
+
+        User admin = userRepository.findByUsernameIgnoreCase("Администратор системы").orElseThrow();
+
+        mockMvc.perform(get("/api/user/id/{id}",admin.getId()))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/user/username/{username}",admin.getUsername()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Тестовая проверка на дупликат имени пользователя при сохранении")
+    public void testSaveDuplicate() throws Exception{
+        UpsertUserRequest request = UpsertUserRequest.builder()
+                .username("Администратор системы")
+                .email("nikola@mail.ru")
+                .password("12457890")
+                .build();
+
+        assertEquals(2,userRepository.count());
+
+        mockMvc.perform(post("/api/user?role=ROLE_USER")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        assertEquals(2,userRepository.count());
     }
 
     @Test
@@ -70,8 +102,8 @@ public class UserControllerTest extends AbstractTest{
 
     @Test
     @DisplayName("Тестовое обновление User")
-    @WithMockUser(username = "user",roles = "USER")
-    public void updateUser_WhenValidRequest_ShouldUpdateAndChangeRole()throws Exception{
+    @WithMockUser(username = "Пользователь системы",roles = "USER")
+    public void testUpdateUser() throws Exception{
         UpsertUserRequest request = UpsertUserRequest.builder()
                 .username("update")
                 .email("update@mail.ru")
@@ -81,7 +113,6 @@ public class UserControllerTest extends AbstractTest{
         User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
 
         assertTrue(user.getRoles().stream().anyMatch(a -> a.getRole().equals(ROLE_USER)));
-
         assertEquals(2,userRepository.count());
 
         mockMvc.perform(put("/api/user/{id}",user.getId())
@@ -91,18 +122,21 @@ public class UserControllerTest extends AbstractTest{
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.username").value(request.getUsername()));
 
+
         assertEquals(2,userRepository.count());
 
-        mockMvc.perform(put("/api/user/{id}",user.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+    }
 
+    @Test
+    @DisplayName("Тестовое обновление User со сменов роли")
+    @WithMockUser(username = "Пользователь системы", roles = "USER")
+    public void testUpdateUserChangeRole() throws Exception{
         UpsertUserRequest newRequest = UpsertUserRequest.builder()
                 .username("new update")
                 .email("newupdate@mail.ru")
                 .password("1280")
                 .build();
+        User user = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();
 
         mockMvc.perform(put("/api/user/{id}?role=ROLE_ADMIN",user.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,13 +146,12 @@ public class UserControllerTest extends AbstractTest{
                 .andExpect(jsonPath("$.username").value(newRequest.getUsername()));
 
         User newUpdate = userRepository.findByUsernameIgnoreCase(newRequest.getUsername()).orElseThrow();
-
         assertTrue(newUpdate.getRoles().stream().anyMatch(authority -> authority.getRole().equals(ROLE_ADMIN)));
     }
 
     @Test
     @DisplayName("Тестовое удаление User")
-    @WithMockUser(username = "admin",roles = "ADMIN")
+    @WithMockUser(username = "Администратор системы",roles = "ADMIN")
     public void testDeleteById() throws Exception{
 
         User user2 = userRepository.findByUsernameIgnoreCase("Пользователь системы").orElseThrow();

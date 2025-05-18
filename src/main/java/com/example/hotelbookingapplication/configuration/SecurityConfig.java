@@ -45,7 +45,7 @@ public class SecurityConfig {
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
                     response.getWriter().write(new ObjectMapper().writeValueAsString(
-                            new ErrorResponse("Доступ запрещен")));
+                            new ErrorResponse("Доступ запрещен: " + accessDeniedException.getMessage())));
                     ;
                 }).authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
